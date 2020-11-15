@@ -13,7 +13,8 @@ const (
 )
 
 var precedence = map[TokenType]int{
-	PERIOD: INDEX,
+	PERIOD:   INDEX,
+	LBRACKET: INDEX,
 }
 
 type Parser struct {
@@ -37,10 +38,12 @@ func NewParser(lex *Lexer) *Parser {
 		lex: lex,
 	}
 	p.prefix = map[TokenType]PrefixFunc{
-		IDENT: p.parseIdentifier,
+		IDENT:  p.parseIdentifier,
+		STRING: p.parseString,
 	}
 	p.infix = map[TokenType]InfixFunc{
-		PERIOD: p.parseAccessor,
+		PERIOD:   p.parseAccessor,
+		LBRACKET: p.parseIndex,
 	}
 	p.nextToken()
 	p.nextToken()
@@ -64,6 +67,12 @@ func (p *Parser) Run() (*QueryExpression, error) {
 
 func (p *Parser) parseIdentifier() Expression {
 	return &Identifier{
+		Token: p.currentToken,
+	}
+}
+
+func (p *Parser) parseString() Expression {
+	return &String{
 		Token: p.currentToken,
 	}
 }
@@ -128,6 +137,27 @@ func (p *Parser) parseAccessor(left Expression) Expression {
 		Left:  left,
 		Right: right,
 	}
+}
+
+func (p *Parser) parseIndex(left Expression) Expression {
+	p.nextToken()
+	index := &IndexExpression{
+		Token: p.currentToken,
+		Left:  left,
+		Index: p.parseExpression(LOWEST),
+	}
+	if p.isCurrentToken(RBRACKET) {
+		msg := fmt.Sprintf("Syntax Error:%v missing index, got %s instead", p.currentToken.Pos, p.currentToken.Type)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+	if !p.isPeekToken(RBRACKET) {
+		msg := fmt.Sprintf("Syntax Error:%v expected ']', got %s instead", p.currentToken.Pos, p.currentToken.Type)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+	p.nextToken()
+	return index
 }
 
 func (p *Parser) currentPrecedence() int {

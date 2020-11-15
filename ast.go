@@ -2,6 +2,7 @@ package path
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"unicode/utf8"
 )
@@ -80,8 +81,8 @@ func (es *ExpressionStatement) String() string {
 type InfixExpression struct {
 	Token    Token
 	Operator string
-	Right    Expression
 	Left     Expression
+	Right    Expression
 }
 
 // Pos returns the first position of the identifier.
@@ -153,3 +154,55 @@ func (i *Identifier) End() Position {
 }
 
 func (i *Identifier) String() string { return i.Token.Literal }
+
+// String represents an string for a given AST block
+type String struct {
+	Token Token
+}
+
+// Pos returns the first position of the string.
+func (i *String) Pos() Position {
+	return i.Token.Pos
+}
+
+// End returns the last position of the string.
+func (i *String) End() Position {
+	length := utf8.RuneCountInString(i.Token.Literal)
+	return Position{
+		Line:   i.Token.Pos.Line,
+		Column: i.Token.Pos.Column + length,
+	}
+}
+
+func (i *String) String() string { return fmt.Sprintf("%q", i.Token.Literal) }
+
+// IndexExpression represents an expression that is associated with an operator.
+type IndexExpression struct {
+	Token    Token
+	Operator string
+	Left     Expression
+	Index    Expression
+}
+
+// Pos returns the first position of the identifier.
+func (ie *IndexExpression) Pos() Position {
+	return ie.Token.Pos
+}
+
+// End returns the last position of the identifier.
+func (ie *IndexExpression) End() Position {
+	return ie.Index.End()
+}
+
+func (ie *IndexExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(ie.Left.String())
+	out.WriteString("[")
+	out.WriteString(ie.Index.String())
+	out.WriteString("]")
+	out.WriteString(")")
+
+	return out.String()
+}

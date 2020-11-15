@@ -1,6 +1,7 @@
 package path
 
 import (
+	"errors"
 	"unicode"
 	"unicode/utf8"
 )
@@ -99,6 +100,12 @@ func (l *Lexer) readRunesToken() Token {
 		tok.Literal = l.readIdentifier()
 		tok.Type = IDENT
 		return tok
+	case isQuote(l.char):
+		if s, err := l.readString(l.char); err == nil {
+			tok.Type = STRING
+			tok.Literal = s
+			return tok
+		}
 	}
 	l.ReadNext()
 	return MakeToken(UNKNOWN, l.char)
@@ -112,10 +119,29 @@ func (l *Lexer) skipWhitespace() {
 
 func (l *Lexer) readIdentifier() string {
 	position := l.position
-	for isLetter(l.char) || isDigit(l.char) || l.char == '-' {
+	for isLetter(l.char) || isDigit(l.char) {
 		l.ReadNext()
 	}
 	return string(l.input[position:l.position])
+}
+
+func (l *Lexer) readString(r rune) (string, error) {
+	var ret []rune
+
+	for {
+		l.ReadNext()
+		switch l.char {
+		case '\n':
+			return "", errors.New("unexpected EOL")
+		case 0:
+			return "", errors.New("unexpected EOF")
+		case r:
+			l.ReadNext()
+			return string(ret), nil
+		default:
+			ret = append(ret, l.char)
+		}
+	}
 }
 
 func (l *Lexer) getPosition() Position {

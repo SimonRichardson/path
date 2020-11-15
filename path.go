@@ -58,12 +58,24 @@ func (q Path) run(e Expression, scope Scope) (Scope, error) {
 	case *Identifier:
 		return scope.GetIdentValue(node.Token.Literal)
 
+	case *String:
+		return scope.GetIdentValue(node.Token.Literal)
+
 	case *AccessorExpression:
 		parent, err := q.run(node.Left, scope)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
 		return q.run(node.Right, parent)
+
+	case *IndexExpression:
+		left, err := q.run(node.Left, scope)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+
+		return q.run(node.Index, left)
 	}
+
 	return nil, RuntimeErrorf("Syntax Error: Unexpected expression %T", e)
 }

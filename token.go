@@ -10,6 +10,10 @@ const (
 	EOF
 
 	IDENT
+	STRING
+
+	LBRACKET // [
+	RBRACKET // ]
 
 	PERIOD    // .
 	SEMICOLON // ;
@@ -21,6 +25,12 @@ func (t TokenType) String() string {
 		return "<EOF>"
 	case IDENT:
 		return "<IDENT>"
+	case STRING:
+		return "<STRING>"
+	case LBRACKET:
+		return "["
+	case RBRACKET:
+		return "]"
 	case PERIOD:
 		return "."
 	case SEMICOLON:
@@ -67,4 +77,6 @@ var (
 var tokenMap = map[rune]TokenType{
 	';': SEMICOLON,
 	'.': PERIOD,
+	'[': LBRACKET,
+	']': RBRACKET,
 }
