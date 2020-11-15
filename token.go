@@ -65,5 +65,6 @@ var (
 )
 
 var tokenMap = map[rune]TokenType{
+	';': SEMICOLON,
 	'.': PERIOD,
 }

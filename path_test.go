@@ -3,6 +3,7 @@ package path
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"testing"
@@ -14,12 +15,16 @@ func TestSuccess(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	box := NewMockBox(ctrl)
-	box.EXPECT().Value().Return(true).AnyTimes()
+	bad := NewMockScope(ctrl)
 
-	scope := NewMockScope(ctrl)
-	scope.EXPECT().GetIdentValue("aaa").Return(box, nil).AnyTimes()
-	scope.EXPECT().GetIdentValue("aaa.bbb").Return(box, nil).AnyTimes()
+	subchild := NewMockScope(ctrl)
+	subchild.EXPECT().GetIdentValue("ccc").Return(bad, nil).AnyTimes()
+
+	child := NewMockScope(ctrl)
+	child.EXPECT().GetIdentValue("bbb").Return(subchild, nil).AnyTimes()
+
+	root := NewMockScope(ctrl)
+	root.EXPECT().GetIdentValue("aaa").Return(child, nil).AnyTimes()
 
 	res, err := ioutil.ReadFile("./testfiles/success")
 	if err != nil {
@@ -39,13 +44,11 @@ func TestSuccess(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			done, err := query.Run(scope)
+			done, err := query.Run(root)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if expected, actual := true, done; expected != actual {
-				t.Errorf("expected %v, actual: %v", expected, actual)
-			}
+			fmt.Println(done)
 		})
 	}
 }
