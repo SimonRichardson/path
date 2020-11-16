@@ -60,10 +60,10 @@ type Token struct {
 }
 
 // MakeToken creates a new token value.
-func MakeToken(tokenType TokenType, char rune) Token {
+func MakeToken(tokenType TokenType, char string) Token {
 	return Token{
 		Type:    tokenType,
-		Literal: string(char),
+		Literal: char,
 	}
 }
 
@@ -74,9 +74,9 @@ var (
 	}
 )
 
-var tokenMap = map[rune]TokenType{
-	';': SEMICOLON,
-	'.': PERIOD,
-	'[': LBRACKET,
-	']': RBRACKET,
+var tokenMap = map[string]TokenType{
+	";": SEMICOLON,
+	".": PERIOD,
+	"[": LBRACKET,
+	"]": RBRACKET,
 }

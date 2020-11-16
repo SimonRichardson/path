@@ -3,7 +3,6 @@ package path
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"testing"
@@ -48,7 +47,7 @@ func TestSuccess(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			fmt.Println(done)
+			t.Log(done)
 		})
 	}
 }

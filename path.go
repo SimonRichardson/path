@@ -1,8 +1,6 @@
 package path
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 )
 
@@ -37,7 +35,7 @@ func (q Path) Run(scope Scope) (Scope, error) {
 
 func (q Path) run(e Expression, scope Scope) (Scope, error) {
 	// Useful for debugging.
-	fmt.Printf("%[1]T %[1]v\n", e)
+	//fmt.Printf("%[1]T %[1]v\n", e)
 
 	switch node := e.(type) {
 	case *QueryExpression:
