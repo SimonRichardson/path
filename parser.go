@@ -9,11 +9,17 @@ import (
 
 const (
 	LOWEST = iota
+	PCONDOR
+	PCONDAND
+	CALL
 	INDEX
 )
 
 var precedence = map[TokenType]int{
+	CONDAND:  PCONDAND,
+	CONDOR:   PCONDOR,
 	PERIOD:   INDEX,
+	LPAREN:   CALL,
 	LBRACKET: INDEX,
 }
 
@@ -38,10 +44,15 @@ func NewParser(lex *Lexer) *Parser {
 		lex: lex,
 	}
 	p.prefix = map[TokenType]PrefixFunc{
-		IDENT:  p.parseIdentifier,
-		STRING: p.parseString,
+		IDENT:    p.parseIdentifier,
+		STRING:   p.parseString,
+		LPAREN:   p.parseGroup,
+		LBRACKET: p.parseAccess,
+		PERIOD:   p.parseDescent,
 	}
 	p.infix = map[TokenType]InfixFunc{
+		CONDAND:  p.parseInfixExpression,
+		CONDOR:   p.parseInfixExpression,
 		PERIOD:   p.parseAccessor,
 		LBRACKET: p.parseIndex,
 	}
@@ -127,6 +138,22 @@ func (p *Parser) parseInfixExpression(left Expression) Expression {
 	return expression
 }
 
+func (p *Parser) parseGroup() Expression {
+	p.nextToken()
+	if p.currentToken.Type == LPAREN && p.isCurrentToken(RPAREN) {
+		// This is an empty group, not sure what we should do here.
+		return &Empty{
+			Token: p.currentToken,
+		}
+	}
+
+	exp := p.parseExpression(LOWEST)
+	if !p.expectPeek(RPAREN) {
+		return nil
+	}
+	return exp
+}
+
 func (p *Parser) parseAccessor(left Expression) Expression {
 	precedence := p.currentPrecedence()
 	p.nextToken()
@@ -137,6 +164,26 @@ func (p *Parser) parseAccessor(left Expression) Expression {
 		Left:  left,
 		Right: right,
 	}
+}
+
+func (p *Parser) parseAccess() Expression {
+	p.nextToken()
+	index := &AccessExpression{
+		Token: p.currentToken,
+		Index: p.parseExpression(LOWEST),
+	}
+	if p.isCurrentToken(RBRACKET) {
+		msg := fmt.Sprintf("Syntax Error:%v missing index, got %s instead", p.currentToken.Pos, p.currentToken.Type)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+	if !p.isPeekToken(RBRACKET) {
+		msg := fmt.Sprintf("Syntax Error:%v expected ']', got %s instead", p.currentToken.Pos, p.currentToken.Type)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+	p.nextToken()
+	return index
 }
 
 func (p *Parser) parseIndex(left Expression) Expression {
@@ -157,6 +204,15 @@ func (p *Parser) parseIndex(left Expression) Expression {
 		return nil
 	}
 	p.nextToken()
+	return index
+}
+
+func (p *Parser) parseDescent() Expression {
+	p.nextToken()
+	index := &DescentExpression{
+		Token: p.currentToken,
+		Right: p.parseExpression(LOWEST),
+	}
 	return index
 }
 

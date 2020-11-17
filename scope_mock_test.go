@@ -32,6 +32,20 @@ func (m *MockScope) EXPECT() *MockScopeMockRecorder {
 	return m.recorder
 }
 
+// GetAllIdents mocks base method
+func (m *MockScope) GetAllIdents() []string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllIdents")
+	ret0, _ := ret[0].([]string)
+	return ret0
+}
+
+// GetAllIdents indicates an expected call of GetAllIdents
+func (mr *MockScopeMockRecorder) GetAllIdents() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllIdents", reflect.TypeOf((*MockScope)(nil).GetAllIdents))
+}
+
 // GetIdentValue mocks base method
 func (m *MockScope) GetIdentValue(arg0 string) (Scope, error) {
 	m.ctrl.T.Helper()

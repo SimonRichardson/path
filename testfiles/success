@@ -5,3 +5,16 @@ aaa.bbb;aaa
 aaa.bbb;aaa.bbb
 aaa["bbb"]
 aaa["bbb"]["ccc"]
+aaa.(bbb)
+aaa.(bbb || ccc)
+aaa.(xxx || yyy)
+aaa.(bbb && yyy)
+aaa.(["bbb"])
+aaa.(["bbb"] || ["ccc"])
+aaa.(["xxx"] || ["yyy"])
+aaa.(["bbb"] && ["yyy"])
+aaa.(bbb).(ccc)
+aaa.(bbb).(["ccc"])
+aaa...ccc
+aaa...ddd.eee
+aaa.....eee

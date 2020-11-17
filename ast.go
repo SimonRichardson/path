@@ -178,10 +178,9 @@ func (i *String) String() string { return fmt.Sprintf("%q", i.Token.Literal) }
 
 // IndexExpression represents an expression that is associated with an operator.
 type IndexExpression struct {
-	Token    Token
-	Operator string
-	Left     Expression
-	Index    Expression
+	Token Token
+	Left  Expression
+	Index Expression
 }
 
 // Pos returns the first position of the identifier.
@@ -206,3 +205,75 @@ func (ie *IndexExpression) String() string {
 
 	return out.String()
 }
+
+// AccessExpression represents an expression that is associated with an operator.
+type AccessExpression struct {
+	Token Token
+	Index Expression
+}
+
+// Pos returns the first position of the identifier.
+func (ie *AccessExpression) Pos() Position {
+	return ie.Token.Pos
+}
+
+// End returns the last position of the identifier.
+func (ie *AccessExpression) End() Position {
+	return ie.Index.End()
+}
+
+func (ie *AccessExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString("[")
+	out.WriteString(ie.Index.String())
+	out.WriteString("]")
+	out.WriteString(")")
+
+	return out.String()
+}
+
+// DescentExpression represents an descent expression
+type DescentExpression struct {
+	Token Token
+	Right Expression
+}
+
+// Pos returns the first position of the descent expression.
+func (i *DescentExpression) Pos() Position {
+	return i.Token.Pos
+}
+
+// End returns the last position of the descent expression.
+func (i *DescentExpression) End() Position {
+	return i.Right.Pos()
+}
+
+func (i *DescentExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(".")
+	out.WriteString(i.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
+
+// Empty represents an empty expression
+type Empty struct {
+	Token Token
+}
+
+// Pos returns the first position of the empty expression.
+func (i *Empty) Pos() Position {
+	return i.Token.Pos
+}
+
+// End returns the last position of the empty expression.
+func (i *Empty) End() Position {
+	return i.Token.Pos
+}
+
+func (i *Empty) String() string { return "()" }

@@ -6,6 +6,8 @@ import (
 
 // Scope is used to identify a given expression of a global mutated object.
 type Scope interface {
+	// GetAllIdents returns all the identifiers for a given scope.
+	GetAllIdents() []string
 	// GetIdentValue returns the value of the identifier in a given scope.
 	GetIdentValue(string) (Scope, error)
 }
@@ -32,4 +34,13 @@ func (s Scopes) GetIdentValue(v string) (Scope, error) {
 		return r, nil
 	}
 	return nil, errors.Errorf("No ident value %q found in scope", v)
+}
+
+// GetAllIdents returns all the identifiers for a given scope.
+func (s Scopes) GetAllIdents() []string {
+	var res []string
+	for _, x := range s.scopes {
+		res = append(res, x.GetAllIdents()...)
+	}
+	return res
 }

@@ -12,6 +12,13 @@ const (
 	IDENT
 	STRING
 
+	BITAND  // &
+	BITOR   // |
+	CONDAND // &&
+	CONDOR  // ||
+
+	LPAREN   // (
+	RPAREN   // )
 	LBRACKET // [
 	RBRACKET // ]
 
@@ -27,10 +34,22 @@ func (t TokenType) String() string {
 		return "<IDENT>"
 	case STRING:
 		return "<STRING>"
+	case LPAREN:
+		return "("
+	case RPAREN:
+		return ")"
 	case LBRACKET:
 		return "["
 	case RBRACKET:
 		return "]"
+	case BITAND:
+		return "&"
+	case BITOR:
+		return "|"
+	case CONDAND:
+		return "&&"
+	case CONDOR:
+		return "||"
 	case PERIOD:
 		return "."
 	case SEMICOLON:
@@ -77,6 +96,10 @@ var (
 var tokenMap = map[string]TokenType{
 	";": SEMICOLON,
 	".": PERIOD,
+	"&": BITAND,
+	"|": BITOR,
+	"(": LPAREN,
+	")": RPAREN,
 	"[": LBRACKET,
 	"]": RBRACKET,
 }

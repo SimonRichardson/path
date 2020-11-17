@@ -12,6 +12,7 @@ import (
 // The lexer in question is lazy and requires the calling of next to move it
 // forward.
 type Lexer struct {
+	input   string
 	scanner scanner.Scanner
 	text    string
 	isEOF   bool
@@ -22,6 +23,7 @@ func NewLexer(input string) *Lexer {
 	var scanner scanner.Scanner
 	scanner.Init(strings.NewReader(input))
 	lex := &Lexer{
+		input:   input,
 		scanner: scanner,
 	}
 	lex.ReadNext()
@@ -39,6 +41,17 @@ func (l *Lexer) ReadNext() {
 	l.text = l.scanner.TokenText()
 }
 
+// Peek will attempt to read the next rune if it's available.
+func (l *Lexer) Peek() rune {
+	return l.PeekN(0)
+}
+
+// PeekN attempts to read the next rune by a given offset, it it's available.
+func (l *Lexer) PeekN(n int) rune {
+	pos := l.scanner.Position
+	return rune(l.input[pos.Offset+n])
+}
+
 // NextToken attempts to grab the next token available.
 func (l *Lexer) NextToken() Token {
 	defer l.ReadNext()
@@ -49,6 +62,26 @@ func (l *Lexer) NextToken() Token {
 
 	if t, ok := tokenMap[l.text]; ok {
 		switch t {
+		case BITAND:
+			if peek := l.Peek(); peek == '&' {
+				tok = Token{
+					Type:    CONDAND,
+					Literal: l.text + string(peek),
+				}
+				l.ReadNext()
+			} else {
+				tok = MakeToken(t, l.text)
+			}
+		case BITOR:
+			if peek := l.Peek(); peek == '|' {
+				tok = Token{
+					Type:    CONDOR,
+					Literal: l.text + string(peek),
+				}
+				l.ReadNext()
+			} else {
+				tok = MakeToken(t, l.text)
+			}
 		default:
 			tok = MakeToken(t, l.text)
 		}

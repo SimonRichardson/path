@@ -1,7 +1,13 @@
 package path
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
+)
+
+var (
+	ErrNotFound = errors.Errorf("not found")
 )
 
 // Path holds all the arguments for a given query.
@@ -35,7 +41,7 @@ func (q Path) Run(scope Scope) (Scope, error) {
 
 func (q Path) run(e Expression, scope Scope) (Scope, error) {
 	// Useful for debugging.
-	//fmt.Printf("%[1]T %[1]v\n", e)
+	fmt.Printf("%[1]T %[1]v\n", e)
 
 	switch node := e.(type) {
 	case *QueryExpression:
@@ -73,6 +79,51 @@ func (q Path) run(e Expression, scope Scope) (Scope, error) {
 		}
 
 		return q.run(node.Index, left)
+
+	case *AccessExpression:
+		return q.run(node.Index, scope)
+
+	case *DescentExpression:
+		var scopes []Scope
+		idents := scope.GetAllIdents()
+		for _, ident := range idents {
+			scope, err := scope.GetIdentValue(ident)
+			if err != nil {
+				return nil, errors.WithStack(err)
+			}
+			scopes = append(scopes, scope)
+		}
+		return NewScopes(scopes), nil
+
+	case *InfixExpression:
+		left, err := q.run(node.Left, scope)
+		notFound := errors.Cause(err) == ErrNotFound
+		if err != nil && !notFound {
+			return nil, errors.WithStack(err)
+		}
+
+		if node.Token.Type == CONDAND {
+			if notFound {
+				return nil, errors.WithStack(err)
+			}
+		} else if node.Token.Type == CONDOR {
+			if err == nil {
+				return left, nil
+			}
+		}
+
+		right, err := q.run(node.Right, scope)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+
+		if node.Token.Type == CONDAND {
+			return NewScopes([]Scope{
+				left, right,
+			}), nil
+		}
+
+		return right, nil
 	}
 
 	return nil, RuntimeErrorf("Syntax Error: Unexpected expression %T", e)
