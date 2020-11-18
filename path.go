@@ -102,6 +102,26 @@ func (q Path) run(e Expression, scope Scope) (Scope, error) {
 			return nil, errors.WithStack(err)
 		}
 
+		var right Scope
+		switch node.Token.Type {
+		case CONDAND, CONDOR:
+			// Don't compute the right handside for a logical operator.
+		default:
+			right, err = q.run(node.Right, scope)
+			if err != nil {
+				return nil, errors.WithStack(err)
+			}
+		}
+
+		switch node.Token.Type {
+		case EQ, NEQ, LT, LE, GT, GE:
+			op, err := liftOperation(node.Token.Type)
+			if err != nil {
+				return nil, errors.WithStack(err)
+			}
+			return left.RunOperation(op, right)
+		}
+
 		if node.Token.Type == CONDAND {
 			if notFound {
 				return nil, errors.WithStack(err)
@@ -112,7 +132,7 @@ func (q Path) run(e Expression, scope Scope) (Scope, error) {
 			}
 		}
 
-		right, err := q.run(node.Right, scope)
+		right, err = q.run(node.Right, scope)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}

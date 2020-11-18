@@ -12,6 +12,16 @@ const (
 	IDENT
 	STRING
 
+	EQ     // ==
+	NEQ    // !=
+	ASSIGN // =
+	BANG   // !
+
+	LT // <
+	LE // <=
+	GT // >
+	GE // >=
+
 	BITAND  // &
 	BITOR   // |
 	CONDAND // &&
@@ -34,6 +44,22 @@ func (t TokenType) String() string {
 		return "<IDENT>"
 	case STRING:
 		return "<STRING>"
+	case ASSIGN:
+		return "="
+	case BANG:
+		return "!"
+	case EQ:
+		return "=="
+	case NEQ:
+		return "!="
+	case LT:
+		return "<"
+	case LE:
+		return "<="
+	case GT:
+		return ">"
+	case GE:
+		return ">="
 	case LPAREN:
 		return "("
 	case RPAREN:
@@ -102,4 +128,8 @@ var tokenMap = map[string]TokenType{
 	")": RPAREN,
 	"[": LBRACKET,
 	"]": RBRACKET,
+	"=": ASSIGN,
+	"!": BANG,
+	"<": LT,
+	">": GT,
 }
