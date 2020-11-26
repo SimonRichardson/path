@@ -1,8 +1,6 @@
 package path
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 )
 
@@ -41,7 +39,7 @@ func (q Path) Run(scope Scope) (Scope, error) {
 
 func (q Path) run(e Expression, scope Scope) (Scope, error) {
 	// Useful for debugging.
-	fmt.Printf("%[1]T %[1]v\n", e)
+	//fmt.Printf("%[1]T %[1]v\n", e)
 
 	switch node := e.(type) {
 	case *QueryExpression:
@@ -63,7 +61,10 @@ func (q Path) run(e Expression, scope Scope) (Scope, error) {
 		return scope.GetIdentValue(node.Token.Literal)
 
 	case *String:
-		return scope.GetIdentValue(node.Token.Literal)
+		if s, err := scope.GetIdentValue(node.Token.Literal); err == nil && s != nil {
+			return s, err
+		}
+		return MakeStringScope(node.Token.Literal), nil
 
 	case *AccessorExpression:
 		parent, err := q.run(node.Left, scope)

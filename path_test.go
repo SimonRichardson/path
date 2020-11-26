@@ -22,13 +22,13 @@ func TestSuccess(t *testing.T) {
 	subchild := NewMockScope(ctrl)
 	subchild.EXPECT().GetIdentValue("ccc").Return(bad, nil).AnyTimes()
 	subchild.EXPECT().GetIdentValue("ddd").Return(subsubchild, nil).AnyTimes()
+	subchild.EXPECT().RunOperation(gomock.Any(), gomock.Any()).Return(subchild, nil).AnyTimes()
 
 	child := NewMockScope(ctrl)
 	child.EXPECT().GetIdentValue("bbb").Return(subchild, nil).AnyTimes()
 	child.EXPECT().GetIdentValue("xxx").Return(nil, ErrNotFound).AnyTimes()
 	child.EXPECT().GetIdentValue("yyy").Return(bad, nil).AnyTimes()
 	child.EXPECT().GetAllIdents().Return([]string{"bbb"}).AnyTimes()
-	child.EXPECT().RunOperation(gomock.Any(), gomock.Any()).Return(subchild, nil).AnyTimes()
 
 	root := NewMockScope(ctrl)
 	root.EXPECT().GetIdentValue("aaa").Return(child, nil).AnyTimes()
