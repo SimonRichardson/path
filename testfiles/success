@@ -13,8 +13,16 @@ aaa.(["bbb"])
 aaa.(["bbb"] || ["ccc"])
 aaa.(["xxx"] || ["yyy"])
 aaa.(["bbb"] && ["yyy"])
+aaa.(bbb).ccc
 aaa.(bbb).(ccc)
 aaa.(bbb).(["ccc"])
 aaa...ccc
 aaa...ddd.eee
 aaa.....eee
+aaa.(bbb == "bbb")
+aaa.(bbb != "bbb")
+aaa.(bbb < "bbb")
+aaa.(bbb <= "bbb")
+aaa.(bbb > "bbb")
+aaa.(bbb >= "bbb")
+aaa.(bbb == "bbb").ccc

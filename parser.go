@@ -11,6 +11,8 @@ const (
 	LOWEST = iota
 	PCONDOR
 	PCONDAND
+	EQUALS
+	LESSGREATER
 	CALL
 	INDEX
 )
@@ -18,6 +20,12 @@ const (
 var precedence = map[TokenType]int{
 	CONDAND:  PCONDAND,
 	CONDOR:   PCONDOR,
+	EQ:       EQUALS,
+	NEQ:      EQUALS,
+	LT:       LESSGREATER,
+	LE:       LESSGREATER,
+	GT:       LESSGREATER,
+	GE:       LESSGREATER,
 	PERIOD:   INDEX,
 	LPAREN:   CALL,
 	LBRACKET: INDEX,
@@ -51,6 +59,12 @@ func NewParser(lex *Lexer) *Parser {
 		PERIOD:   p.parseDescent,
 	}
 	p.infix = map[TokenType]InfixFunc{
+		EQ:       p.parseInfixExpression,
+		NEQ:      p.parseInfixExpression,
+		LT:       p.parseInfixExpression,
+		LE:       p.parseInfixExpression,
+		GT:       p.parseInfixExpression,
+		GE:       p.parseInfixExpression,
 		CONDAND:  p.parseInfixExpression,
 		CONDOR:   p.parseInfixExpression,
 		PERIOD:   p.parseAccessor,

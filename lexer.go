@@ -43,7 +43,7 @@ func (l *Lexer) ReadNext() {
 
 // Peek will attempt to read the next rune if it's available.
 func (l *Lexer) Peek() rune {
-	return l.PeekN(0)
+	return l.PeekN(1)
 }
 
 // PeekN attempts to read the next rune by a given offset, it it's available.
@@ -62,6 +62,46 @@ func (l *Lexer) NextToken() Token {
 
 	if t, ok := tokenMap[l.text]; ok {
 		switch t {
+		case ASSIGN:
+			if peek := l.Peek(); peek == '=' {
+				tok = Token{
+					Type:    EQ,
+					Literal: l.text + string(peek),
+				}
+				l.ReadNext()
+			} else {
+				tok = MakeToken(t, l.text)
+			}
+		case BANG:
+			if peek := l.Peek(); peek == '=' {
+				tok = Token{
+					Type:    NEQ,
+					Literal: l.text + string(peek),
+				}
+				l.ReadNext()
+			} else {
+				tok = MakeToken(t, l.text)
+			}
+		case LT:
+			if peek := l.Peek(); peek == '=' {
+				tok = Token{
+					Type:    LE,
+					Literal: l.text + string(peek),
+				}
+				l.ReadNext()
+			} else {
+				tok = MakeToken(t, l.text)
+			}
+		case GT:
+			if peek := l.Peek(); peek == '=' {
+				tok = Token{
+					Type:    GE,
+					Literal: l.text + string(peek),
+				}
+				l.ReadNext()
+			} else {
+				tok = MakeToken(t, l.text)
+			}
 		case BITAND:
 			if peek := l.Peek(); peek == '&' {
 				tok = Token{

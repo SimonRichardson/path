@@ -60,3 +60,18 @@ func (mr *MockScopeMockRecorder) GetIdentValue(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIdentValue", reflect.TypeOf((*MockScope)(nil).GetIdentValue), arg0)
 }
+
+// RunOperation mocks base method
+func (m *MockScope) RunOperation(arg0 Operation, arg1 Scope) (Scope, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RunOperation", arg0, arg1)
+	ret0, _ := ret[0].(Scope)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RunOperation indicates an expected call of RunOperation
+func (mr *MockScopeMockRecorder) RunOperation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunOperation", reflect.TypeOf((*MockScope)(nil).RunOperation), arg0, arg1)
+}
